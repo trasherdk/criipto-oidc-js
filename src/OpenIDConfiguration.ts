@@ -1,4 +1,5 @@
 export type OpenIDConfiguration = {
+  client_id: string;
   issuer: string;
   jwks_uri: string;
   authorization_endpoint: string;
@@ -25,7 +26,7 @@ export class OpenIDConfigurationManager {
   async fetch(): Promise<OpenIDConfiguration> {
     const response = await fetch(`${this.authority}/.well-known/openid-configuration?client_id=${this.clientID}`);
     const metadata : OpenIDConfiguration = await response.json();
-    Object.assign(this, metadata);
+    metadata.client_id = this.clientID;
     return metadata;
   }
 }
