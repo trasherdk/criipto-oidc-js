@@ -1,9 +1,9 @@
-export {generate as generatePKCE} from './pkce';
-export {parseQueryResponse, parseURLResponse} from './response';
+export { generate as generatePKCE } from './pkce';
+export { parseQueryResponse, parseURLResponse } from './response';
 
 import { type OpenIDConfiguration } from './OpenIDConfiguration';
 import { AuthorizeResponse } from './response';
-export {OpenIDConfigurationManager, type OpenIDConfiguration} from './OpenIDConfiguration';
+export { OpenIDConfigurationManager, type OpenIDConfiguration } from './OpenIDConfiguration';
 
 export function buildLogoutURL(
   configuration: OpenIDConfiguration,
@@ -20,6 +20,39 @@ export function buildLogoutURL(
   for (const [k, v] of Object.entries(options)) {
     url.searchParams.set(k, v);
   }
+  return url;
+}
+
+export type AuthorizeURLOptions = {
+  redirect_uri: string;
+  response_type: string;
+  response_mode: string;
+  acr_values?: string | string[];
+  code_challenge_method?: string,
+  code_challenge?: string
+  state?: string;
+  login_hint?: string;
+  ui_locales?: string;
+  scope: string;
+  prompt?: string;
+  nonce?: string
+}
+
+export function buildAuthorizeURL(
+  configuration: OpenIDConfiguration,
+  options: AuthorizeURLOptions
+) {
+  const url = new URL(configuration.authorization_endpoint);
+
+  for (const [k, v] of Object.entries(options)) {
+    if (k === 'acr_values') continue;
+    url.searchParams.set(k, v as string);
+  }
+
+  if (options.acr_values) {
+    url.searchParams.set('acr_values', Array.isArray(options.acr_values) ? options.acr_values.join(' ') : options.acr_values);
+  }
+
   return url;
 }
 
