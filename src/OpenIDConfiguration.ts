@@ -1,4 +1,4 @@
-export class OpenIDMetadata {
+export type OpenIDConfiguration = {
   issuer: string;
   jwks_uri: string;
   authorization_endpoint: string;
@@ -12,19 +12,19 @@ export class OpenIDMetadata {
   id_token_signing_alg_values_supported: string[];
 }
 
-export default class OpenIDConfiguration extends OpenIDMetadata {
+export class OpenIDConfigurationManager {
   authority: string;
   clientID: string
 
   constructor(authority: string, clientID: string) {
-    super();
+    if (!authority.startsWith('http')) throw new Error(`OpenIDConfigurationManager authority should start with https://`);
     this.authority = authority;
     this.clientID = clientID;
   }
 
-  async fetch(): Promise<OpenIDMetadata> {
+  async fetch(): Promise<OpenIDConfiguration> {
     const response = await fetch(`${this.authority}/.well-known/openid-configuration?client_id=${this.clientID}`);
-    const metadata : OpenIDMetadata = await response.json();
+    const metadata : OpenIDConfiguration = await response.json();
     Object.assign(this, metadata);
     return metadata;
   }
