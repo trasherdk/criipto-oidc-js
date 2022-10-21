@@ -4,5 +4,6 @@ module.exports = {
   testEnvironment: 'node',
   reporters: [
     "default"
-  ]
+  ],
+  rootDir: "src/"
 };
