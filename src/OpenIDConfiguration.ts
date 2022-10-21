@@ -13,20 +13,63 @@ export type OpenIDConfiguration = {
   id_token_signing_alg_values_supported: string[];
 }
 
-export class OpenIDConfigurationManager {
-  authority: string;
-  clientID: string
+type CacheEntry<T> = {
+  cachedAt: string
+  entry: T
+}
 
-  constructor(authority: string, clientID: string) {
+export class Cache<T> {
+  storage: Storage
+  lifetimeMs: number
+
+  constructor(storage: Storage, lifetimeMs: number) {
+    this.lifetimeMs = lifetimeMs;
+    this.storage = storage;
+  }
+
+  add(key: string, entry: T) {
+    const cacheEntry : CacheEntry<T> = {
+      cachedAt: (new Date()).toJSON(),
+      entry
+    };
+    this.storage.setItem(key, JSON.stringify(cacheEntry));
+  }
+  
+  get(key: string) {
+    const cacheEntryCandidate = this.storage.getItem(key);
+    if (!cacheEntryCandidate) return null;
+
+    const cacheEntry : CacheEntry<T> = JSON.parse(cacheEntryCandidate);
+    const cachedAt = new Date(cacheEntry.cachedAt);
+    const isExpired = (cachedAt.valueOf() + this.lifetimeMs) >= Date.now();
+    if (isExpired) return null;
+    return cacheEntry.entry;
+  }
+}
+
+export class OpenIDConfigurationManager {
+  authority: string
+  clientID: string
+  cache: Cache<OpenIDConfiguration> | undefined
+
+  constructor(authority: string, clientID: string, cacheStorage?: Storage) {
     if (!authority.startsWith('http')) throw new Error(`OpenIDConfigurationManager authority should start with https://`);
     this.authority = authority;
     this.clientID = clientID;
+    this.cache = cacheStorage ? new Cache(cacheStorage, 60000) : undefined;
   }
 
   async fetch(): Promise<OpenIDConfiguration> {
-    const response = await fetch(`${this.authority}/.well-known/openid-configuration?client_id=${this.clientID}`);
+    const url = `${this.authority}/.well-known/openid-configuration?client_id=${this.clientID}`;
+    
+    const cacheEntry = this.cache?.get(url);
+    if (cacheEntry) return cacheEntry;
+
+    const response = await fetch(url);
     const metadata : OpenIDConfiguration = await response.json();
     metadata.client_id = this.clientID;
+
+    this.cache?.add(url, metadata);
     return metadata;
   }
 }
