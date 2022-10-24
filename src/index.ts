@@ -59,11 +59,12 @@ export function buildAuthorizeURL(
 
 export function parseAuthorizeOptionsFromUrl(input: string | URL) : Partial<AuthorizeURLOptions> & {domain: string, client_id: string} {
   const url = typeof input === "string" ? new URL(input) : input;
+  const acr_values = url.searchParams.get('acr_values');
 
   return {
     domain: url.host,
     client_id: url.searchParams.get('client_id')!,
-    acr_values: url.searchParams.get('acr_values')?.split(' ') ?? undefined,
+    acr_values: acr_values ? acr_values.split(" ") : undefined,
     redirect_uri: url.searchParams.get('redirect_uri') ?? undefined,
     response_type: url.searchParams.get('response_type') ?? undefined,
     response_mode: url.searchParams.get('response_mode') ?? undefined,
