@@ -65,17 +65,17 @@ export function parseAuthorizeOptionsFromUrl(input: string | URL) : Partial<Auth
     domain: url.host,
     client_id: url.searchParams.get('client_id')!,
     acr_values: acr_values ? acr_values.split(" ") : undefined,
-    redirect_uri: url.searchParams.get('redirect_uri') ?? undefined,
-    response_type: url.searchParams.get('response_type') ?? undefined,
-    response_mode: url.searchParams.get('response_mode') ?? undefined,
-    code_challenge: url.searchParams.get('code_challenge') ?? undefined,
-    code_challenge_method: url.searchParams.get('code_challenge_method') ?? undefined,
-    state: url.searchParams.get('state') ?? undefined,
-    login_hint: url.searchParams.get('login_hint') ?? undefined,
-    ui_locales: url.searchParams.get('ui_locales') ?? undefined,
-    scope: url.searchParams.get('scope') ?? undefined,
-    nonce: url.searchParams.get('nonce') ?? undefined,
-    prompt: url.searchParams.get('prompt') ?? undefined
+    redirect_uri: url.searchParams.get('redirect_uri') || undefined,
+    response_type: url.searchParams.get('response_type') || undefined,
+    response_mode: url.searchParams.get('response_mode') || undefined,
+    code_challenge: url.searchParams.get('code_challenge') || undefined,
+    code_challenge_method: url.searchParams.get('code_challenge_method') || undefined,
+    state: url.searchParams.get('state') || undefined,
+    login_hint: url.searchParams.get('login_hint') || undefined,
+    ui_locales: url.searchParams.get('ui_locales') || undefined,
+    scope: url.searchParams.get('scope') || undefined,
+    nonce: url.searchParams.get('nonce') || undefined,
+    prompt: url.searchParams.get('prompt') || undefined
   };
 }
 
