@@ -114,3 +114,20 @@ export async function codeExchange(
   if (payload.error) return {error: payload.error, error_description: payload.error_description};
   return {id_token: payload.id_token, access_token: payload.access_token};
 }
+
+export async function userInfo(
+  configuration: OpenIDConfiguration,
+  accessToken: string
+) : Promise<{[key: string]: string} | ErrorResponse> {
+  const response = await fetch(configuration.userinfo_endpoint, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    },
+    credentials: 'omit',
+  });
+
+  const payload = await response.json();
+  if (payload.error) return {error: payload.error, error_description: payload.error_description, state: payload.state};
+  return payload;
+}
