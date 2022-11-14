@@ -2,7 +2,7 @@ export { generate as generatePKCE } from './pkce';
 export { parseQueryResponse, parseURLResponse } from './response';
 
 import { type OpenIDConfiguration } from './OpenIDConfiguration';
-import { AuthorizeResponse } from './response';
+import { ErrorResponse } from './response';
 export { OpenIDConfigurationManager, type OpenIDConfiguration } from './OpenIDConfiguration';
 
 export function buildLogoutURL(
@@ -85,25 +85,32 @@ export async function codeExchange(
     code: string,
     redirect_uri: string
     code_verifier: string
+  } | {
+    code: string,
+    redirect_uri: string
+    client_secret: string
   }
-) : Promise<AuthorizeResponse> {
+) : Promise<{id_token: string, access_token: string} | ErrorResponse> {
   const body = new URLSearchParams();
   body.append('grant_type', "authorization_code");
   body.append('code', options.code);
   body.append('client_id', configuration.client_id);
   body.append('redirect_uri', options.redirect_uri);
-  body.append('code_verifier', options.code_verifier);
+  if ("code_verifier" in options) body.append('code_verifier', options.code_verifier);
 
   const response = await fetch(configuration.token_endpoint, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
+      'Content-Type': 'application/x-www-form-urlencoded',
+      ...("client_secret" in options ? {
+        Authorization: "Basic " + btoa(`${configuration.client_id}:${options.client_secret}`)
+      } : {})
     },
     credentials: 'omit',
     body: body.toString()
   });
 
   const payload = await response.json();
-
-  return {id_token: payload.id_token};
+  if (payload.error) return {error: payload.error, error_description: payload.error_description};
+  return {id_token: payload.id_token, access_token: payload.access_token};
 }
