@@ -43,6 +43,7 @@ export function buildAuthorizeURL(
   options: AuthorizeURLOptions
 ) {
   const url = new URL(configuration.authorization_endpoint);
+  url.searchParams.set('scope', options.scope ? options.scope : 'openid');
 
   for (const [k, v] of Object.entries(options)) {
     if (k === 'acr_values') continue;
