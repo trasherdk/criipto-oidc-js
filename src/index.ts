@@ -105,7 +105,7 @@ export async function codeExchange(
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
       ...("client_secret" in options ? {
-        Authorization: "Basic " + btoa(`${configuration.client_id}:${options.client_secret}`)
+        Authorization: "Basic " + btoa(`${encodeURIComponent(configuration.client_id)}:${options.client_secret}`)
       } : {})
     },
     credentials: 'omit',
