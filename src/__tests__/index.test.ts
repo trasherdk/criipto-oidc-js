@@ -9,7 +9,7 @@ describe('codeExchange', () => {
   beforeEach(() => {mockedFetch.mockClear();});
 
   const configuration : OpenIDConfiguration = {
-    client_id: Math.random().toString(),
+    client_id: `urn:grn:${Math.random().toString()}`,
     issuer: `https://some.authority.com`,
     jwks_uri: `https://some.authority.com/jwks/${Math.random().toString()}`,
     authorization_endpoint: `https://some.authority.com/authorize/${Math.random().toString()}`,
@@ -52,7 +52,7 @@ describe('codeExchange', () => {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       credentials: 'omit',
-      body: `grant_type=authorization_code&code=${code}&client_id=${configuration.client_id}&redirect_uri=${redirect_uri}&code_verifier=${code_verifier}`
+      body: `grant_type=authorization_code&code=${code}&client_id=${encodeURIComponent(configuration.client_id)}&redirect_uri=${redirect_uri}&code_verifier=${code_verifier}`
     });
   });
 
@@ -83,7 +83,7 @@ describe('codeExchange', () => {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       credentials: 'omit',
-      body: `grant_type=authorization_code&code=${code}&client_id=${configuration.client_id}&redirect_uri=${redirect_uri}&code_verifier=${code_verifier}`
+      body: `grant_type=authorization_code&code=${code}&client_id=${encodeURIComponent(configuration.client_id)}&redirect_uri=${redirect_uri}&code_verifier=${code_verifier}`
     });
   });
 
@@ -114,10 +114,10 @@ describe('codeExchange', () => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic ' + btoa(`${configuration.client_id}:${client_secret}`)
+        'Authorization': 'Basic ' + btoa(`${encodeURIComponent(configuration.client_id)}:${client_secret}`)
       },
       credentials: 'omit',
-      body: `grant_type=authorization_code&code=${code}&client_id=${configuration.client_id}&redirect_uri=${redirect_uri}`
+      body: `grant_type=authorization_code&code=${code}&client_id=${encodeURIComponent(configuration.client_id)}&redirect_uri=${redirect_uri}`
     });
   });
 });
